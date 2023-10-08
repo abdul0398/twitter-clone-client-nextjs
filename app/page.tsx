@@ -1,4 +1,5 @@
-import React from "react";
+"use client"
+import React, { useCallback } from "react";
 import { BsTwitter } from "react-icons/bs";
 import { BiHomeCircle } from "react-icons/bi";
 import { FaMagnifyingGlass } from "react-icons/fa6";
@@ -10,6 +11,10 @@ import { RiTwitterXLine } from "react-icons/ri";
 import { BiFace } from "react-icons/bi";
 import { CiCircleMore } from "react-icons/ci";
 import FeedCard from "@/components/FeedCard";
+import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
+import { toast } from 'react-hot-toast';
+import { graphqlClient } from "@/clients/api";
+import { VerifyUserGoogleUserToeknDocument } from "@/gql/graphql";
 
 interface TwitterSidebarButton {
   title: String;
@@ -56,6 +61,18 @@ const sidebarMenus: TwitterSidebarButton[] = [
 ];
 
 export default function Home() {
+  const handleLoginWithGoogle = useCallback(async (cred: CredentialResponse) => {
+    const googleToken = cred.credential;
+    if (!googleToken) return toast.error("Google Token not found");
+    const { verifyGoogleToken } = await graphqlClient.request(
+      VerifyUserGoogleUserToeknDocument,
+      { token: googleToken })
+
+      toast.success("Verfied success");
+      console.log(verifyGoogleToken);
+    
+  }, [])
+
   return (
     <div>
       <div className="grid grid-cols-12 h-screen">
@@ -67,7 +84,7 @@ export default function Home() {
             {sidebarMenus.map((item) => (
               <li className="h-fit" key={1}>
                 <div className="cursor-pointer transition-all inline-flex box-border rounded-full p-2 hover:bg-slate-600 justify-start items-center gap-4 mb-2">
-                  <span className="text-2xl">{item.icon}</span> 
+                  <span className="text-2xl">{item.icon}</span>
                   <span className="" >{item.title}</span>
                 </div>
               </li>
@@ -76,20 +93,25 @@ export default function Home() {
           <div className="text-center w-48 cursor-pointer font-bold p-[15px] hover:bg-blue-700 transition-all bg-blue-500 rounded-full h-14 justify-center flex">Post</div>
         </div>
         <div className="col-span-5 border-r-[1px] border-l-[1px] border-gray-400 overflow-auto no-scrollbar h-screen">
-          <FeedCard/>
-          <FeedCard/>
-          <FeedCard/>
-          <FeedCard/>
-          <FeedCard/>
-          <FeedCard/>
-          <FeedCard/>
-          <FeedCard/>
-          <FeedCard/>
-          <FeedCard/>
-          <FeedCard/>
-          <FeedCard/>
+          <FeedCard />
+          <FeedCard />
+          <FeedCard />
+          <FeedCard />
+          <FeedCard />
+          <FeedCard />
+          <FeedCard />
+          <FeedCard />
+          <FeedCard />
+          <FeedCard />
+          <FeedCard />
+          <FeedCard />
         </div>
-        <div className="col-span-4"></div>
+        <div className="col-span-4">
+          <div className="p-3 w-fit border rounded-lg">
+            <p className="text-center">New to Twitter?</p>
+            <GoogleLogin onSuccess={handleLoginWithGoogle} />
+          </div>
+        </div>
       </div>
     </div>
   );
